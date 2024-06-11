@@ -42,6 +42,7 @@ import { ReminderCommand } from './commands/utilityCommands/ReminderCommand.js';
 import { LolCommand } from './commands/funCommands/LolCommand.js';
 import { FirstPublicApiWebService } from './webservices/FirstPublicApiWebService.js';
 import { ProgramDataService } from './dataservices/ProgramDataService.js';
+import { LastTeamNumberDataService } from './dataservices/LastTeamNumberIDataService.js';
 
 
 const { configure, transports, error, info } = winston;
@@ -90,6 +91,7 @@ bot.once(Events.ClientReady, readyClient => {
   const acronymDataService = new AcronymDataService(database);
   const reminderDataService = new ReminderDataService(database);
   const programDataService = new ProgramDataService(database);
+  const lastTeamNumberDataService = new LastTeamNumberDataService(database);
 
   const googleCalendarWebService = new GoogleCalendarWebService(googleCalendarDataService);
   const firstPublicApiWebService = new FirstPublicApiWebService(programDataService);
@@ -120,7 +122,7 @@ bot.once(Events.ClientReady, readyClient => {
     new GameCommand(),
     new ManualCommand(),
     new DanceCommand(),
-    new TeamCommand(firstPublicApiWebService),
+    new TeamCommand(firstPublicApiWebService, lastTeamNumberDataService),
     new ImagineCommand(),
     new BonkCommand(),
     new YikesCommand(),

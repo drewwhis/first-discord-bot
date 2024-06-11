@@ -1,3 +1,4 @@
+import { ILastTeamNumberDataService } from '../../dataservices/interfaces/ILastTeamNumberDataService.js';
 import { IFirstProgram } from '../../models/IFirstProgram.js';
 import { IFirstPublicApiWebService } from '../../webservices/interfaces/IFirstPublicApiWebService.js';
 import { ICommand } from '../ICommand.js';
@@ -8,9 +9,11 @@ export class TeamCommand implements ICommand {
   description: string = 'Gets the URL of a team\'s Blue Alliance page for the current year.';
 
   private readonly _firstPublicApi: IFirstPublicApiWebService;
+  private readonly _teamNumbers: ILastTeamNumberDataService;
 
-  constructor(firstPublicApi: IFirstPublicApiWebService) {
+  constructor(firstPublicApi: IFirstPublicApiWebService, teamNumbers: ILastTeamNumberDataService) {
     this._firstPublicApi = firstPublicApi;
+    this._teamNumbers = teamNumbers;
   }
 
   public trigger(message: Message): boolean {
@@ -21,8 +24,12 @@ export class TeamCommand implements ICommand {
   }
 
   public async execute(message: Message): Promise<void> {
-    const year = await this._firstPublicApi.getCurrentSeason(IFirstProgram.FRC, false);
     const team = Number(message.content.trim());
+    const lastNumber = await this._teamNumbers.getByProgram(IFirstProgram.FRC);
+    if (lastNumber == null) return;
+    if (lastNumber.lastTeamNumber < team) return;
+    
+    const year = await this._firstPublicApi.getCurrentSeason(IFirstProgram.FRC, false);
 
     const reply =
       `Check out Team ${team} this season (${year}) on`
